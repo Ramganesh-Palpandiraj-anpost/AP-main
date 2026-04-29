@@ -1,0 +1,23 @@
+###############################################################################################################
+# For additional configurable services, features, and property descriptions,                                  #
+# please review the AccountConfig class reference in our TypeDoc:                                             #
+# https://awslabs.github.io/landing-zone-accelerator-on-aws/latest/user-guide/config/#account-configuration   #
+###############################################################################################################
+
+# -----------------------------------------------------------------------------------------
+# AWS Landing Zone Accelerator - Accounts Configuration
+# Project: AP Eircode Service Take-on (Test Environment)
+# -----------------------------------------------------------------------------------------
+
+customizations:
+  ssmDocuments:
+    # This specific name overrides the default Session Manager preferences
+    - name: SSM-SessionManagerRunShell
+      description: "Deploys secure Session Manager preferences for third-party access"
+      documentType: Command
+      documentFormat: JSON
+      document: ssm-documents/session-manager-prefs.json
+      # Deployed to all workloads (where PAD instances live)
+      deploymentTargets:
+        organizationalUnits:
+          - Workloads

@@ -1,0 +1,47 @@
+###############################################################################################################
+# For additional configurable services, features, and property descriptions,                                  #
+# please review the AccountConfig class reference in our TypeDoc:                                             #
+# https://awslabs.github.io/landing-zone-accelerator-on-aws/latest/user-guide/config/#account-configuration   #
+###############################################################################################################
+
+# -----------------------------------------------------------------------------------------
+# AWS Landing Zone Accelerator - Accounts Configuration
+# Project: AP Eircode Service Take-on (Test Environment)
+# -----------------------------------------------------------------------------------------
+homeRegion: &HOME_REGION eu-west-1
+enabledRegions:
+  - *HOME_REGION
+
+cloudwatchLogRetentionInDays: 365
+
+managementAccountAccessRole: AWSControlTowerExecution
+
+controlTower:
+  enable: true
+
+logging:
+  account: LogArchive
+  cloudtrail:
+    enable: true
+    organizationTrail: true
+  sessionManager:
+    sendToCloudWatchLogs: true
+    sendToS3: true
+
+budgets:
+  - name: anpost-landing-zone-budget
+    timeUnit: MONTHLY
+    type: COST
+    amount: 700
+    includeUpfront: true
+    includeTax: true
+    includeSupport: true
+    includeSubscription: true
+    includeRecurring: true
+    includeOtherSubscription: true
+    includeDiscount: true
+    includeCredit: false
+    includeRefund: false
+    subscribers:
+      - subscriptionType: EMAIL
+        address: yasotharamganesh@gmail.com

@@ -1,0 +1,74 @@
+###############################################################################################################
+# For additional configurable services, features, and property descriptions,                                  #
+# please review the AccountConfig class reference in our TypeDoc:                                             #
+# https://awslabs.github.io/landing-zone-accelerator-on-aws/latest/user-guide/config/#account-configuration   #
+###############################################################################################################
+
+# -----------------------------------------------------------------------------------------
+# AWS Landing Zone Accelerator - Accounts Configuration
+# Project: AP Eircode Service Take-on (Test Environment)
+# -----------------------------------------------------------------------------------------
+awsConfig:
+  enableConfigurationRecorder: true
+  aggregation:
+    enable: false
+    delegatedAdminAccount: Audit
+  ruleSets: []
+
+accessAnalyzer:
+  enable: false
+
+iamPasswordPolicy:
+  minimumPasswordLength: 14
+  hardExpiry: false
+  passwordReusePrevention: 24
+  requireLowercaseCharacters: true
+  requireNumbers: true
+  requireSymbols: true
+  requireUppercaseCharacters: true
+  allowUsersToChangePassword: true
+  maxPasswordAge: 90
+
+centralSecurityServices:
+  delegatedAdminAccount: Audit
+  
+  ebsDefaultVolumeEncryption:
+    enable: true
+    excludeRegions: []
+    
+  s3PublicAccessBlock:
+    enable: true
+    excludeAccounts: []
+    
+  scpRevertChangesConfig:
+    enable: true
+
+  macie:
+    enable: false
+    publishSensitiveDataFindings: false
+
+  guardduty:
+    enable: true
+    exportConfiguration:
+      enable: true
+      destinationType: S3
+      exportFrequency: FIFTEEN_MINUTES
+    s3Protection:
+      enable: true
+
+  securityHub:
+    enable: true
+    regionAggregation: true
+    standards:
+      - name: AWS Foundational Security Best Practices v1.0.0
+        enable: true
+
+  ssmAutomation:
+    enable: true
+    documentSets: []
+
+cloudWatch:
+  encryption:
+    enabled: true
+  alarmSets: []
+  metricSets: []

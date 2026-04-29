@@ -1,0 +1,126 @@
+###############################################################################################################
+# For additional configurable services, features, and property descriptions,                                  #
+# please review the AccountConfig class reference in our TypeDoc:                                             #
+# https://awslabs.github.io/landing-zone-accelerator-on-aws/latest/user-guide/config/#account-configuration   #
+###############################################################################################################
+
+# -----------------------------------------------------------------------------------------
+# AWS Landing Zone Accelerator - Accounts Configuration
+# Project: AP Eircode Service Take-on (Test Environment)
+# -----------------------------------------------------------------------------------------
+defaultVpc:
+  delete: true
+endpointPolicies: []
+
+transitGateways:
+  - name: Central-TGW
+    account: Network
+    region: eu-west-1
+    asn: 65000
+    autoAcceptSharingAttachments: enable
+    defaultRouteTablePropagation: disable
+    defaultRouteTableAssociation: disable
+    vpnEcmpSupport: enable
+    dnsSupport: enable
+    routeTables: []
+    shareTargets:
+      organizationalUnits:
+        - Infrastructure
+        - Workloads
+        - Production      
+        - Non-Production   
+        - Sandbox
+
+vpcs:
+  - name: Egress-VPC
+    account: Network
+    region: eu-west-1
+    cidrs:
+      - 172.16.0.0/16
+    internetGateway: true
+    subnets:
+      - name: Public-Subnet
+        availabilityZone: 'a'
+        ipv4CidrBlock: 172.16.0.0/24
+      - name: Firewall-Subnet
+        availabilityZone: 'a'
+        ipv4CidrBlock: 172.16.1.0/24
+      - name: TGW-Subnet
+        availabilityZone: 'a'
+        ipv4CidrBlock: 172.16.2.0/24
+    natGateways:
+      - name: Egress-NAT-A
+        subnet: Public-Subnet
+        availabilityZone: 'a'
+    transitGatewayAttachments:
+      - name: Egress-TGW-Attach
+        transitGateway:
+          name: Central-TGW
+          account: Network
+        subnets: 
+          - TGW-Subnet
+        applianceModeSupport: enable
+
+  - name: PAD-VPC-Prod
+    account: Production-PAD
+    region: eu-west-1
+    cidrs:
+      - 10.100.0.0/16
+    subnets:
+      - name: Private-Subnet-App
+        availabilityZone: 'a'
+        ipv4CidrBlock: 10.100.1.0/24
+      - name: Private-Subnet-Data
+        availabilityZone: 'a'
+        ipv4CidrBlock: 10.100.2.0/24
+      - name: TGW-Subnet
+        availabilityZone: 'a'
+        ipv4CidrBlock: 10.100.3.0/24
+    transitGatewayAttachments:
+      - name: PAD-Prod-TGW-Attach
+        transitGateway:
+          name: Central-TGW
+          account: Network
+        subnets:
+          - TGW-Subnet
+    routeTables:
+      - name: PAD-Prod-Private-RT
+        subnets:
+          - Private-Subnet-App
+          - Private-Subnet-Data
+        routes:
+          - name: Default-Route-To-TGW
+            destination: 0.0.0.0/0
+            target: Central-TGW
+    vpcEndpoints:
+      - service: s3
+        type: Gateway
+        routeTableNames: 
+          - PAD-Prod-Private-RT
+        policy: vpc-endpoint-policies/s3-gateway-endpoint-policy.json
+
+centralNetworkServices:
+  delegatedAdminAccount: Network
+  networkFirewall:
+    rules: []
+    policies:
+      - name: AnPost-Central-Firewall-Policy
+        regions:
+          - eu-west-1
+        firewallPolicy:
+          statelessDefaultActions: ['aws:forward_to_sfe']
+          statelessFragmentDefaultActions: ['aws:forward_to_sfe']
+          statefulRuleGroups: []
+    firewalls:
+      - name: AnPost-Central-Firewall
+        account: Network
+        region: eu-west-1
+        vpc: Egress-VPC
+        subnets:
+          - Firewall-Subnet
+        firewallPolicy: AnPost-Central-Firewall-Policy
+        loggingConfiguration:
+          - destination: cloud-watch-logs
+            type: ALERT
+          - destination: cloud-watch-logs
+            type: FLOW
